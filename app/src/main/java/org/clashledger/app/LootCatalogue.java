@@ -29,7 +29,8 @@ public final class LootCatalogue {
     }
 
     private static JSONObject catalogCache;
-    private static Map<String, String> nameToId;
+    private static Map<String, String> nameToHomeId;
+    private static Map<String, String> nameToBuilderBaseId;
     private static final Object LOCK = new Object();
 
     public static void initialize(InputStream catalogStream, InputStream namesStream) {
@@ -39,7 +40,7 @@ public final class LootCatalogue {
                     catalogCache = new JSONObject(readStream(catalogStream));
                 }
                 if (namesStream != null) {
-                    nameToId = buildReverseMap(new JSONObject(readStream(namesStream)));
+                    buildMaps(new JSONObject(readStream(namesStream)));
                 }
             } catch (Exception ignored) { }
         }
@@ -47,33 +48,49 @@ public final class LootCatalogue {
 
     private static void ensureLoaded(Context context) {
         synchronized (LOCK) {
-            if (catalogCache != null && nameToId != null) return;
+            if (catalogCache != null && nameToHomeId != null) return;
             try {
                 if (catalogCache == null) {
                     try (InputStream in = context.getAssets().open("loot_catalog.json")) {
                         catalogCache = new JSONObject(readStream(in));
                     }
                 }
-                if (nameToId == null) {
+                if (nameToHomeId == null) {
                     try (InputStream in = context.getAssets().open("item_names.json")) {
-                        nameToId = buildReverseMap(new JSONObject(readStream(in)));
+                        buildMaps(new JSONObject(readStream(in)));
                     }
                 }
             } catch (Exception ignored) { }
         }
     }
 
-    private static Map<String, String> buildReverseMap(JSONObject names) {
-        Map<String, String> map = new HashMap<>();
+    private static boolean isBuilderBaseId(long id) {
+        if (id >= 1000033 && id <= 1000058) return true;
+        if (id == 1000063 || id == 1000065 || (id >= 1000078 && id <= 1000082)) return true;
+        if ((id >= 4000031 && id <= 4000042) || id == 4000070 || id == 4000106) return true;
+        if (id == 28000003 || id == 28000005) return true;
+        if (id >= 12000010 && id <= 12000014) return true;
+        return false;
+    }
+
+    private static void buildMaps(JSONObject names) {
+        nameToHomeId = new HashMap<>();
+        nameToBuilderBaseId = new HashMap<>();
         Iterator<String> keys = names.keys();
         while (keys.hasNext()) {
-            String id = keys.next();
-            String name = names.optString(id);
-            if (!name.isEmpty()) {
-                map.put(name.toLowerCase(java.util.Locale.US), id);
-            }
+            String idStr = keys.next();
+            String name = names.optString(idStr);
+            if (name.isEmpty()) continue;
+            try {
+                long idNum = Long.parseLong(idStr);
+                String cleanName = name.toLowerCase(java.util.Locale.US);
+                if (isBuilderBaseId(idNum)) {
+                    nameToBuilderBaseId.put(cleanName, idStr);
+                } else {
+                    nameToHomeId.put(cleanName, idStr);
+                }
+            } catch (Exception ignored) { }
         }
-        return map;
     }
 
     private static String readStream(InputStream in) throws java.io.IOException {
@@ -86,14 +103,23 @@ public final class LootCatalogue {
 
     public static NextLoot nextLoot(Context context, Upgrade u, LootSettings settings) {
         ensureLoaded(context);
-        return resolveLoot(catalogCache, nameToId, u, settings);
+        return resolveLoot(catalogCache, nameToHomeId, nameToBuilderBaseId, u, settings);
     }
 
-    public static NextLoot resolveLoot(JSONObject catalog, Map<String, String> names, Upgrade u, LootSettings settings) {
-        if (catalog == null || u.isForge()) return null;
+    public static NextLoot resolveLoot(JSONObject catalog, Map<String, String> homeNames, Map<String, String> bbNames, Upgrade u, LootSettings settings) {
+        if (catalog == null || u == null || u.isForge()) return null;
         String id = u.itemId;
-        if ((id == null || id.isEmpty()) && names != null) {
-            id = names.get(u.name.toLowerCase(java.util.Locale.US));
+        boolean isBase = u.group != null && (u.group.equals("Builder Base") || u.group.equals("Star Laboratory"));
+
+        if (id == null || id.isEmpty()) {
+            String cleanName = u.name.toLowerCase(java.util.Locale.US).trim();
+            if (cleanName.contains(" · ")) {
+                cleanName = cleanName.substring(cleanName.lastIndexOf(" · ") + 3).trim();
+            }
+            Map<String, String> primary = isBase ? bbNames : homeNames;
+            Map<String, String> fallback = isBase ? homeNames : bbNames;
+            if (primary != null) id = primary.get(cleanName);
+            if ((id == null || id.isEmpty()) && fallback != null) id = fallback.get(cleanName);
         }
         if (id == null || !catalog.has(id)) return null;
 
@@ -109,8 +135,31 @@ public final class LootCatalogue {
                 long base = costs.getLong(nextKey);
                 long discounted = settings.calculateCost(base, u.group, resource);
                 return new NextLoot(nextLevel, base, discounted, resource, false, true);
-            } else if (costs.has(String.valueOf(u.level))) {
-                return new NextLoot(nextLevel, 0, 0, resource, true, true);
+            }
+
+            String currentKey = String.valueOf(u.level);
+            if (costs.has(currentKey)) {
+                long base = costs.getLong(currentKey);
+                long discounted = settings.calculateCost(base, u.group, resource);
+                return new NextLoot(u.level, base, discounted, resource, true, true);
+            }
+
+            int bestLvl = -1;
+            long bestCost = 0;
+            Iterator<String> costKeys = costs.keys();
+            while (costKeys.hasNext()) {
+                String k = costKeys.next();
+                try {
+                    int l = Integer.parseInt(k);
+                    if (l > bestLvl) {
+                        bestLvl = l;
+                        bestCost = costs.getLong(k);
+                    }
+                } catch (Exception ignored) { }
+            }
+            if (bestLvl > 0) {
+                long discounted = settings.calculateCost(bestCost, u.group, resource);
+                return new NextLoot(bestLvl, bestCost, discounted, resource, u.level >= bestLvl, true);
             }
         } catch (JSONException ignored) { }
 
@@ -121,10 +170,11 @@ public final class LootCatalogue {
         if (settings == null || !settings.enabled) return "";
         NextLoot loot = nextLoot(context, u, settings);
         if (loot == null || !loot.available) return "";
-        if (loot.isMax) return "Max level";
+        if (loot.isMax) {
+            return "Max Lv " + loot.nextLevel + " (" + LootFormat.formatLoot(loot.resource, loot.discountedCost) + ")";
+        }
         return "Next: " + LootFormat.formatLoot(loot.resource, loot.discountedCost);
     }
 
     private LootCatalogue() { }
 }
-

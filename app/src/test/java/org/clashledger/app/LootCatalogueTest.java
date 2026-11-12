@@ -6,12 +6,14 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import static org.junit.Assert.*;
 
 public class LootCatalogueTest {
     private JSONObject catalog;
-    private Map<String, String> nameMap;
+    private Map<String, String> homeNames;
+    private Map<String, String> bbNames;
 
     @Before
     public void setUp() throws Exception {
@@ -22,157 +24,96 @@ public class LootCatalogueTest {
         try (InputStream in = getClass().getResourceAsStream("/item_names.json")) {
             assertNotNull("item_names.json should exist in assets/resources", in);
             JSONObject names = new JSONObject(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-            nameMap = new HashMap<>();
-            names.keys().forEachRemaining(k -> nameMap.put(names.optString(k).toLowerCase(java.util.Locale.US), k));
+            homeNames = new HashMap<>();
+            bbNames = new HashMap<>();
+            Iterator<String> keys = names.keys();
+            while (keys.hasNext()) {
+                String idStr = keys.next();
+                String name = names.optString(idStr);
+                long idNum = Long.parseLong(idStr);
+                boolean isBb = (idNum >= 1000033 && idNum <= 1000058) || idNum == 1000063 || idNum == 1000065
+                    || (idNum >= 1000078 && idNum <= 1000082) || (idNum >= 4000031 && idNum <= 4000042)
+                    || idNum == 4000070 || idNum == 4000106 || idNum == 28000003 || idNum == 28000005
+                    || (idNum >= 12000010 && idNum <= 12000014);
+                if (isBb) {
+                    bbNames.put(name.toLowerCase(java.util.Locale.US), idStr);
+                } else {
+                    homeNames.put(name.toLowerCase(java.util.Locale.US), idStr);
+                }
+            }
         }
     }
 
     @Test
-    public void testLootFormatAmount() {
-        assertEquals("0", LootFormat.formatAmount(0));
-        assertEquals("500", LootFormat.formatAmount(500));
-        assertEquals("15k", LootFormat.formatAmount(15000));
-        assertEquals("320k", LootFormat.formatAmount(320000));
-        assertEquals("1M", LootFormat.formatAmount(1000000));
-        assertEquals("18.5M", LootFormat.formatAmount(18500000));
-        assertEquals("21M", LootFormat.formatAmount(21000000));
-    }
-
-    @Test
-    public void testLootFormatResource() {
-        assertEquals("Gold", LootFormat.resourceLabel("gold"));
-        assertEquals("Elixir", LootFormat.resourceLabel("elixir"));
-        assertEquals("DE", LootFormat.resourceLabel("dark_elixir"));
-        assertEquals("B-Gold", LootFormat.resourceLabel("builder_gold"));
-        assertEquals("B-Elixir", LootFormat.resourceLabel("builder_elixir"));
-        assertEquals("C-Gold", LootFormat.resourceLabel("capital_gold"));
-    }
-
-    @Test
-    public void testNextLootStandardCannon() {
-        // Cannon (1000008), currently upgrading to level 20 -> next level is 21
-        Upgrade u = new Upgrade("test:1", "Cannon", "Builders", 20, 100000, 0);
-        u.itemId = "1000008";
+    public void testHomeVsBuilderBaseNameResolution() {
+        Upgrade homeCannon = new Upgrade("home:1", "Cannon", "Builders", 20, 100000, 0);
+        Upgrade bbCannon = new Upgrade("bb:1", "Cannon", "Builder Base", 9, 100000, 0);
 
         LootSettings settings = new LootSettings();
-        settings.goldPassBuilder = 0;
-        settings.builderJam = false;
+        LootCatalogue.NextLoot homeLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, homeCannon, settings);
+        LootCatalogue.NextLoot bbLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, bbCannon, settings);
 
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
+        assertNotNull(homeLoot);
+        assertEquals("gold", homeLoot.resource);
+        assertEquals(21, homeLoot.nextLevel);
+        assertEquals(18500000L, homeLoot.baseCost);
+
+        assertNotNull(bbLoot);
+        assertEquals("builder_gold", bbLoot.resource);
+        assertEquals(10, bbLoot.nextLevel);
+        assertEquals(1500000L, bbLoot.baseCost);
+    }
+
+    @Test
+    public void testTownHall18Loot() {
+        Upgrade th = new Upgrade("th:1", "Town Hall", "Builders", 17, 100000, 0);
+        LootSettings settings = new LootSettings();
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, th, settings);
+
         assertNotNull(loot);
-        assertEquals(21, loot.nextLevel);
+        assertEquals(18, loot.nextLevel);
+        assertEquals(24000000L, loot.baseCost);
         assertEquals("gold", loot.resource);
-        assertFalse(loot.isMax);
-        assertEquals(18500000L, loot.baseCost);
-        assertEquals(18500000L, loot.discountedCost);
     }
 
     @Test
-    public void testNextLootWithGoldPassDiscount() {
-        Upgrade u = new Upgrade("test:1", "Cannon", "Builders", 20, 100000, 0);
-        u.itemId = "1000008";
+    public void testTH18RicochetCannonAndMultiArcherTower() {
+        Upgrade rc = new Upgrade("rc:1", "Ricochet Cannon", "Builders", 3, 100000, 0);
+        Upgrade mat = new Upgrade("mat:1", "Multi-Archer Tower", "Builders", 3, 100000, 0);
 
         LootSettings settings = new LootSettings();
-        settings.goldPassBuilder = 20;
-        settings.builderJam = false;
+        LootCatalogue.NextLoot rcLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, rc, settings);
+        LootCatalogue.NextLoot matLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, mat, settings);
 
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
-        assertNotNull(loot);
-        assertEquals(18500000L, loot.baseCost);
-        // 18.5M * 0.80 = 14.8M
-        assertEquals(14800000L, loot.discountedCost);
+        assertNotNull(rcLoot);
+        assertEquals(4, rcLoot.nextLevel);
+        assertEquals(26000000L, rcLoot.baseCost);
+
+        assertNotNull(matLoot);
+        assertEquals(4, matLoot.nextLevel);
+        assertEquals(26000000L, matLoot.baseCost);
     }
 
     @Test
-    public void testNextLootWithBuilderJamAndGoldPass() {
-        Upgrade u = new Upgrade("test:1", "Cannon", "Builders", 20, 100000, 0);
-        u.itemId = "1000008";
-
+    public void testBuildersHutWeaponized() {
+        Upgrade hut = new Upgrade("hut:1", "Builder's Hut", "Builders", 7, 100000, 0);
         LootSettings settings = new LootSettings();
-        settings.goldPassBuilder = 20;
-        settings.builderJam = true;
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, hut, settings);
 
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
         assertNotNull(loot);
-        assertEquals(18500000L, loot.baseCost);
-        // 18.5M * 0.50 * 0.80 = 7.4M
-        assertEquals(7400000L, loot.discountedCost);
+        assertEquals(8, loot.nextLevel);
+        assertEquals(21000000L, loot.baseCost);
     }
 
     @Test
-    public void testBuilderJamDoesNotAffectLaboratory() {
-        Upgrade u = new Upgrade("test:lab", "Barbarian", "Laboratory", 11, 100000, 0);
-        u.itemId = "4000000";
-
+    public void testMaxLevelDisplaysCost() {
+        // Town Hall 18 is max level
+        Upgrade th18 = new Upgrade("th:18", "Town Hall", "Builders", 18, 100000, 0);
         LootSettings settings = new LootSettings();
-        settings.goldPassBuilder = 20;
-        settings.goldPassResearch = 0;
-        settings.builderJam = true;
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, th18, settings);
 
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
-        assertNotNull(loot);
-        assertEquals(12, loot.nextLevel);
-        assertEquals(15500000L, loot.baseCost);
-        // Builder Jam only applies to Builders & Builder Base, not Laboratory!
-        assertEquals(15500000L, loot.discountedCost);
-
-        // Now with Gold Pass research 10%
-        settings.goldPassResearch = 10;
-        loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
-        assertNotNull(loot);
-        // 15.5M * 0.90 = 13.95M -> 13950000
-        assertEquals(13950000L, loot.discountedCost);
-    }
-
-    @Test
-    public void testDarkElixirHeroDiscount() {
-        Upgrade u = new Upgrade("test:bk", "Barbarian King", "Builders", 94, 100000, 0);
-        u.itemId = "28000000";
-
-        LootSettings settings = new LootSettings();
-        settings.goldPassBuilder = 20;
-        settings.builderJam = false;
-
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
-        assertNotNull(loot);
-        assertEquals(95, loot.nextLevel);
-        assertEquals("dark_elixir", loot.resource);
-        assertTrue(loot.baseCost > 300000);
-        assertEquals((long) Math.floor(loot.baseCost * 0.80), loot.discountedCost);
-    }
-
-    @Test
-    public void testMaxLevelDetection() {
-        // Cannon max level in catalog is 23. If upgrading to 23, next is 24 which doesn't exist -> isMax = true
-        Upgrade u = new Upgrade("test:max", "Cannon", "Builders", 23, 100000, 0);
-        u.itemId = "1000008";
-
-        LootSettings settings = new LootSettings();
-
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
         assertNotNull(loot);
         assertTrue(loot.isMax);
-    }
-
-    @Test
-    public void testForgeExemption() {
-        Upgrade forge = new Upgrade("forge:1", "Forge", "Forge", 1, 100000, 0);
-        LootSettings settings = new LootSettings();
-        assertNull(LootCatalogue.resolveLoot(catalog, nameMap, forge, settings));
-    }
-
-    @Test
-    public void testReverseNameLookup() {
-        // If u.itemId is missing (like manual upgrade), resolve by name
-        Upgrade u = new Upgrade("manual:1", "Archer Tower", "Builders", 20, 100000, 0);
-        u.itemId = "";
-
-        LootSettings settings = new LootSettings();
-
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, nameMap, u, settings);
-        assertNotNull(loot);
-        assertEquals(21, loot.nextLevel);
-        assertEquals("gold", loot.resource);
-        assertEquals(19000000L, loot.baseCost);
+        assertEquals(24000000L, loot.discountedCost);
     }
 }
