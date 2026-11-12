@@ -14,17 +14,23 @@ public final class LootCatalogue {
         public final int nextLevel;
         public final long baseCost;
         public final long discountedCost;
+        public final int discountPercent;
         public final String resource;
         public final boolean isMax;
         public final boolean available;
 
-        public NextLoot(int nextLevel, long baseCost, long discountedCost, String resource, boolean isMax, boolean available) {
+        public NextLoot(int nextLevel, long baseCost, long discountedCost, int discountPercent, String resource, boolean isMax, boolean available) {
             this.nextLevel = nextLevel;
             this.baseCost = baseCost;
             this.discountedCost = discountedCost;
+            this.discountPercent = discountPercent;
             this.resource = resource;
             this.isMax = isMax;
             this.available = available;
+        }
+
+        public NextLoot(int nextLevel, long baseCost, long discountedCost, String resource, boolean isMax, boolean available) {
+            this(nextLevel, baseCost, discountedCost, 0, resource, isMax, available);
         }
     }
 
@@ -129,19 +135,20 @@ public final class LootCatalogue {
             JSONObject costs = item.optJSONObject("costs");
             if (costs == null) return null;
 
+            int discountPercent = settings.discountPercent(u.group, resource);
             int nextLevel = u.level + 1;
             String nextKey = String.valueOf(nextLevel);
             if (costs.has(nextKey)) {
                 long base = costs.getLong(nextKey);
                 long discounted = settings.calculateCost(base, u.group, resource);
-                return new NextLoot(nextLevel, base, discounted, resource, false, true);
+                return new NextLoot(nextLevel, base, discounted, discountPercent, resource, false, true);
             }
 
             String currentKey = String.valueOf(u.level);
             if (costs.has(currentKey)) {
                 long base = costs.getLong(currentKey);
                 long discounted = settings.calculateCost(base, u.group, resource);
-                return new NextLoot(u.level, base, discounted, resource, true, true);
+                return new NextLoot(u.level, base, discounted, discountPercent, resource, true, true);
             }
 
             int bestLvl = -1;
@@ -159,7 +166,7 @@ public final class LootCatalogue {
             }
             if (bestLvl > 0) {
                 long discounted = settings.calculateCost(bestCost, u.group, resource);
-                return new NextLoot(bestLvl, bestCost, discounted, resource, u.level >= bestLvl, true);
+                return new NextLoot(bestLvl, bestCost, discounted, discountPercent, resource, u.level >= bestLvl, true);
             }
         } catch (JSONException ignored) { }
 
@@ -170,10 +177,12 @@ public final class LootCatalogue {
         if (settings == null || !settings.enabled) return "";
         NextLoot loot = nextLoot(context, u, settings);
         if (loot == null || !loot.available) return "";
+        String discountTag = loot.discountPercent > 0 ? " (-" + loot.discountPercent + "%)" : "";
+        String formattedCost = LootFormat.formatLoot(loot.resource, loot.discountedCost) + discountTag;
         if (loot.isMax) {
-            return "Max Lv " + loot.nextLevel + " (" + LootFormat.formatLoot(loot.resource, loot.discountedCost) + ")";
+            return "Max Lv " + loot.nextLevel + " (" + formattedCost + ")";
         }
-        return "Next: " + LootFormat.formatLoot(loot.resource, loot.discountedCost);
+        return "Next Lv " + loot.nextLevel + ": " + formattedCost;
     }
 
     private LootCatalogue() { }

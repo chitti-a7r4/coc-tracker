@@ -87,11 +87,11 @@ public class LootCatalogueTest {
 
         assertNotNull(rcLoot);
         assertEquals(4, rcLoot.nextLevel);
-        assertEquals(26000000L, rcLoot.baseCost);
+        assertEquals(26500000L, rcLoot.baseCost);
 
         assertNotNull(matLoot);
         assertEquals(4, matLoot.nextLevel);
-        assertEquals(26000000L, matLoot.baseCost);
+        assertEquals(27000000L, matLoot.baseCost);
     }
 
     @Test
@@ -102,7 +102,44 @@ public class LootCatalogueTest {
 
         assertNotNull(loot);
         assertEquals(8, loot.nextLevel);
-        assertEquals(21000000L, loot.baseCost);
+        assertEquals(24000000L, loot.baseCost);
+    }
+
+    @Test
+    public void testArcherQueenHighLevels() {
+        // AQ upgrading to level 107
+        Upgrade aq = new Upgrade("aq:106", "Archer Queen", "Builders", 106, 100000, 0);
+        aq.itemId = "28000001";
+        LootSettings settings = new LootSettings();
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, aq, settings);
+
+        assertNotNull(loot);
+        assertEquals(107, loot.nextLevel);
+        assertEquals(470000L, loot.baseCost);
+        assertEquals("dark_elixir", loot.resource);
+    }
+
+    @Test
+    public void testDiscountsAndLabelFormatting() {
+        Upgrade rc = new Upgrade("rc:1", "Ricochet Cannon", "Builders", 3, 100000, 0);
+        rc.itemId = "1000085";
+
+        LootSettings settings = new LootSettings();
+        settings.goldPassBuilder = 20; // 20% GP discount
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, rc, settings);
+
+        assertNotNull(loot);
+        assertEquals(4, loot.nextLevel);
+        assertEquals(26500000L, loot.baseCost);
+        assertEquals(21200000L, loot.discountedCost);
+        assertEquals(20, loot.discountPercent);
+
+        // Builder Jam + GP stacking: 50% * 80% = 40% cost -> 60% discount
+        settings.builderJam = true;
+        LootCatalogue.NextLoot stackedLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, rc, settings);
+        assertNotNull(stackedLoot);
+        assertEquals(10600000L, stackedLoot.discountedCost);
+        assertEquals(60, stackedLoot.discountPercent);
     }
 
     @Test

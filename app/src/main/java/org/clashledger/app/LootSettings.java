@@ -40,13 +40,14 @@ public final class LootSettings {
             .apply();
     }
 
-    public long calculateCost(long baseCost, String group, String resource) {
-        if (baseCost <= 0) return 0;
+    public double effectiveMultiplier(String group, String resource) {
         double eventMult = 1.0;
-        if (builderJam && (group.equals("Builders") || group.equals("Builder Base"))) {
+        if (builderJam && (group.equals("Builders") || group.equals("Builder Base") || group.equals("Pets"))) {
             eventMult = 0.50;
-        } else if (customDiscount > 0) {
-            eventMult = Math.max(0.0, 1.0 - customDiscount / 100.0);
+        }
+        if (customDiscount > 0) {
+            double customMult = Math.max(0.0, 1.0 - customDiscount / 100.0);
+            eventMult = Math.min(eventMult, customMult);
         }
 
         double gpMult = 1.0;
@@ -56,6 +57,18 @@ public final class LootSettings {
             if (goldPassBuilder > 0) gpMult = Math.max(0.0, 1.0 - goldPassBuilder / 100.0);
         }
 
-        return (long) Math.floor(baseCost * eventMult * gpMult);
+        return eventMult * gpMult;
+    }
+
+    public int discountPercent(String group, String resource) {
+        double mult = effectiveMultiplier(group, resource);
+        int pct = (int) Math.round((1.0 - mult) * 100.0);
+        return Math.max(0, Math.min(100, pct));
+    }
+
+    public long calculateCost(long baseCost, String group, String resource) {
+        if (baseCost <= 0) return 0;
+        double mult = effectiveMultiplier(group, resource);
+        return (long) Math.floor(baseCost * mult);
     }
 }

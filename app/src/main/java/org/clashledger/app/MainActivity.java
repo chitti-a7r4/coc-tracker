@@ -331,6 +331,7 @@ public final class MainActivity extends Activity {
         for(int i=0;i<BoostState.NAMES.length;i++) { final int index=i; space(f,5); f.addView(button(BoostState.NAMES[i]+" · "+BoostState.RATES[i]+"×",()->{menu.dismiss();boostEditor(index);})); }
         space(f,12); f.addView(button("Builder’s Apprentice / Lab Assistant",()->{menu.dismiss();helperOptions();}));
         space(f,5); f.addView(button("Event multiplier adjustment",()->{menu.dismiss();eventOptions();}));
+        space(f,5); f.addView(button("Upgrade loot & discounts",()->{menu.dismiss();lootOptions();}));
         ScrollView scroll=new ScrollView(this);scroll.addView(f);
         menu.setView(scroll);menu.show();
     }
@@ -416,7 +417,10 @@ public final class MainActivity extends Activity {
         ScrollView scroll=new ScrollView(this);scroll.addView(f);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Upgrade loot & discounts").setView(scroll).setNegativeButton("Cancel",null).setPositiveButton("Save",(d,w)->{
             settings.enabled=enabled.isChecked();settings.builderJam=builderJam.isChecked();
-            for(int i=0;i<4;i++){if(gpBuilderBtns[i].isChecked())settings.goldPassBuilder=gpVals[i];if(gpResearchBtns[i].isChecked())settings.goldPassResearch=gpVals[i];}
+            int bId=gpBuilder.getCheckedRadioButtonId();
+            for(int i=0;i<4;i++){if(gpBuilderBtns[i].getId()==bId||gpBuilderBtns[i].isChecked())settings.goldPassBuilder=gpVals[i];}
+            int rId=gpResearch.getCheckedRadioButtonId();
+            for(int i=0;i<4;i++){if(gpResearchBtns[i].getId()==rId||gpResearchBtns[i].isChecked())settings.goldPassResearch=gpVals[i];}
             try{int c=Integer.parseInt(custom.getText().toString().trim());settings.customDiscount=Math.max(0,Math.min(50,c));}catch(Exception ignored){}
             settings.save();changed();
         }).create();dialog.show();
