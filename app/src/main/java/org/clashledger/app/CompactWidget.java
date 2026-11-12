@@ -24,6 +24,7 @@ public final class CompactWidget {
         int height=options.getInt(portrait?AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT:AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,220);
         CompactLayout layout=new CompactLayout(width,height);
         String style=c.getSharedPreferences("display",0).getString("timerStyle","compact");
+        LootSettings lootSettings=new LootSettings(c);
         RemoteViews root=new RemoteViews(c.getPackageName(),R.layout.widget_compact);
         UpgradeWidget.bindVillageSwitch(c,root,ledger);
         if(DisplaySettings.oled(c))root.setInt(R.id.widget_root,"setBackgroundResource",R.drawable.oled_bg);
@@ -45,7 +46,8 @@ public final class CompactWidget {
                 tile.setChronometerCountDown(R.id.compact_timer,true);
                 tile.setChronometer(R.id.compact_timer,SystemClock.elapsedRealtime()+left,null,left>0&&style.equals("clock"));
                 if(left==0||!style.equals("clock"))tile.setTextViewText(R.id.compact_timer,TimerFormat.format(left,style));
-                tile.setContentDescription(R.id.compact_tile,u.name+", level "+u.level+", "+u.group+", "+TimerFormat.format(left,style));
+                String loot=LootCatalogue.nextLootLabel(c,u,lootSettings);
+                tile.setContentDescription(R.id.compact_tile,u.name+", level "+u.level+", "+u.group+", "+TimerFormat.format(left,style)+(loot.isEmpty()?"":", "+loot));
                 Intent intent=new Intent(c,MainActivity.class).setData(android.net.Uri.parse("clashledger://upgrade/"+ledger.profileId+"/"+android.net.Uri.encode(u.id)))
                     .putExtra("profileId",ledger.profileId).putExtra("upgradeId",u.id).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 tile.setOnClickPendingIntent(R.id.compact_tile,PendingIntent.getActivity(c,80,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));

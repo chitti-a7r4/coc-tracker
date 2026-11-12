@@ -100,6 +100,7 @@ public final class VillageImport {
         String name = prefix + names.optString(String.valueOf(id), "Item " + id);
         if (!names.has(String.valueOf(id))) warnings.add("Unknown item " + id + " kept with its ID; you can rename it.");
         Upgrade u = new Upgrade("import:" + path, name, group, level+1, seconds*1000L, timestamp);
+        u.itemId = String.valueOf(id);
         u.goblin = extra(item);
         u.boosts=boosts;
         long helperSeconds=item.has("helper_timer")?number(item,"helper_timer",0,3600):0;
