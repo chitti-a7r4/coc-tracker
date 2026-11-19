@@ -54,7 +54,7 @@ public final class MainActivity extends Activity {
         ledger = new Ledger(this);
     }
     @Override protected void onSaveInstanceState(Bundle state) { state.putBoolean("builderBase", builderBase);state.putString("pickingSoundMode",pickingSoundMode); super.onSaveInstanceState(state); }
-    @Override protected void onResume() { super.onResume();resumed=true;foregroundGeneration++;clipboardChecked=android.content.Intent.ACTION_SEND.equals(getIntent().getAction())||getIntent().hasExtra("upgradeId"); consumeProfileIntent(); ledger = new Ledger(this); build(); handler.removeCallbacks(tick); handler.post(tick); UpgradeWidget.refresh(this); Reminders.sync(this,true); updateReminderStatus(); consumeSharedExport();consumeUpgradeIntent();AppUpdates.checkAutomatically(this,this::refreshUpdateNotice);handler.post(this::checkClipboardWhenReady); }
+    @Override protected void onResume() { super.onResume();resumed=true;foregroundGeneration++;clipboardChecked=android.content.Intent.ACTION_SEND.equals(getIntent().getAction())||getIntent().hasExtra("upgradeId")||"org.clashledger.IMPORT".equals(getIntent().getAction())||getIntent().getBooleanExtra("openImport",false); consumeProfileIntent(); ledger = new Ledger(this); build(); handler.removeCallbacks(tick); handler.post(tick); UpgradeWidget.refresh(this); Reminders.sync(this,true); updateReminderStatus(); consumeSharedExport();consumeUpgradeIntent();consumeImportIntent();AppUpdates.checkAutomatically(this,this::refreshUpdateNotice);handler.post(this::checkClipboardWhenReady); }
     @Override protected void onPause() { resumed=false;foregroundGeneration++;handler.removeCallbacks(tick); super.onPause(); }
     @Override public void onWindowFocusChanged(boolean focused){super.onWindowFocusChanged(focused);if(focused)handler.post(this::checkClipboardWhenReady);}
     private void checkClipboardWhenReady(){
@@ -79,7 +79,27 @@ public final class MainActivity extends Activity {
         if(text!=null) { if(text.length()>1_000_000)Toast.makeText(this,"Export exceeds 1 MB",Toast.LENGTH_LONG).show();else importJson(text.toString()); }
         else { android.net.Uri uri=i.getParcelableExtra(android.content.Intent.EXTRA_STREAM);if(uri!=null)readExport(uri); }
     }
-    @Override protected void onNewIntent(android.content.Intent i) { super.onNewIntent(i);setIntent(i); }
+    private void consumeImportIntent() {
+        android.content.Intent i=getIntent();
+        if("org.clashledger.IMPORT".equals(i.getAction())||i.getBooleanExtra("openImport",false)) {
+            i.removeExtra("openImport");
+            if("org.clashledger.IMPORT".equals(i.getAction()))i.setAction(null);
+            clipboardChecked=true;
+            android.content.ClipboardManager cm=getSystemService(android.content.ClipboardManager.class);
+            if(cm!=null&&cm.hasPrimaryClip()&&cm.getPrimaryClip()!=null&&cm.getPrimaryClip().getItemCount()>0) {
+                CharSequence text=cm.getPrimaryClip().getItemAt(0).getText();
+                if(text!=null) {
+                    String trimmed=text.toString().trim();
+                    if(trimmed.startsWith("{")&&trimmed.length()<=1_000_000) {
+                        handler.post(()->importJson(trimmed,true));
+                        return;
+                    }
+                }
+            }
+            handler.post(this::importJson);
+        }
+    }
+    @Override protected void onNewIntent(android.content.Intent i) { super.onNewIntent(i);setIntent(i);consumeImportIntent(); }
     @Override protected void onActivityResult(int request,int result,android.content.Intent data) {
         super.onActivityResult(request,result,data);
         if((request==701||request==702)&&result==RESULT_OK&&data!=null) {

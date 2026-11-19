@@ -3,6 +3,7 @@
         <ImageView android:id="@+id/townhall" android:layout_width="29dp" android:layout_height="30dp" android:scaleType="fitCenter" android:importantForAccessibility="no"/>
         <TextView android:id="@+id/village" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:textSize="13sp" android:textStyle="bold" android:textColor="#F2F5F7" android:paddingStart="6dp" android:singleLine="true" android:ellipsize="end"/>
         <ImageView android:id="@+id/switch_village" android:layout_width="32dp" android:layout_height="32dp" android:padding="7dp" android:src="@drawable/ic_switch_village" android:contentDescription="Switch to next saved village" android:visibility="gone"/>
+        <ImageView android:id="@+id/import_village" android:layout_width="32dp" android:layout_height="32dp" android:padding="7dp" android:src="@drawable/ic_import" android:contentDescription="Import village JSON"/>
         <ImageView android:id="@+id/refresh" android:layout_width="32dp" android:layout_height="32dp" android:padding="7dp" android:src="@drawable/ic_refresh" android:contentDescription="Refresh widget"/>
     </LinearLayout>
     <TextView android:id="@+id/widget_meta" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#F2C46C" android:textSize="9sp" android:maxLines="1" android:ellipsize="end"/>

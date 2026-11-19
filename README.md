@@ -70,7 +70,18 @@ Open **Settings → Appearance & widget layout** and enable **Pure black · OLED
 
 The overview’s third summary card is now **Next lab**, replacing the old Ready count. It shows the normal Laboratory slot’s next completion, including boosts and helpers. On the Builder Base tab it follows the **Star Laboratory**. Temporary Goblin research is tracked separately and does not make the normal lab look occupied.
 
-## New in 1.3.0
+## New in 1.4.0
+
+- **Town Hall 19 ("Clash of Titans"):** Full support with Town Hall 19 base artwork, upgrade cost (27M Gold), and export parsing.
+- **New Defenses & Buildings:** Guardian Shrine (`1000105`), Squad Barracks (`1000106` with 12-level progression), Spiky Tower (`1000107`), and Firecracker Tower (`1000108`) with artwork, name mappings, and upgrade costs.
+- **New Helpers:** Added mappings and artwork for The Alchemist (`93000002`) and The Prospector (`93000003`).
+- **Next-Level Loot Planner:** Displays required resource costs for the next upgrade level directly on queue items, editors, and widgets. Adjust calculations with Gold Pass builder/research discounts (10%/15%/20%), event discounts (Builder Jam 50%), or custom percentages.
+- **Widget Enhancements:** Replaced the widget refresh icon with a clean, mathematically symmetrical gold vector, and added a direct 1-tap **Import button** right on the widget header with smart clipboard export detection.
+- **Expanded Level Caps:** Updated catalog capacities for storages (Lv 20), Multi-Archer Tower (Lv 5), Ricochet Cannon (Lv 5), Spell Factory (Lv 10), and Walls (Lv 20).
+
+[Full 1.4.0 release notes](docs/RELEASE_1.4.0.md) · [1.3.0 release notes](docs/RELEASE_1.3.0.md)
+
+## Added in 1.3.0
 
 All changes since 1.2.1 are included in this release:
 
@@ -93,7 +104,7 @@ If the app closes unexpectedly, reopen it and use **Settings → Crash diagnosti
 
 ## Added in 1.2.0–1.2.1
 
-Compact progress-ring widgets, OLED black theme, next-research summary, multiple saved villages with direct widget switching, and Guardian artwork for **Logger, Longshot and Smasher**. Additional spell and trap icons include Totem Spell and Giga Bomb. Existing Town Hall 18, Revenge Tower, Super Wizard Tower and Greedy Raven artwork remains available.
+Compact progress-ring widgets, OLED black theme, next-research summary, multiple saved villages with direct widget switching, and Guardian artwork for **Logger, Longshot and Smasher**. Additional spell and trap icons include Totem Spell and Giga Bomb. Existing Town Hall 18 and 19, Revenge Tower, Super Wizard Tower, Spiky Tower, Firecracker Tower, and Squad Barracks artwork are fully supported.
 
 <table><tr>
 <td align="center"><img src="docs/screenshots/oled-dashboard.png" width="230" alt="OLED black dashboard with next laboratory timer and saved village switch">OLED dashboard</td>
@@ -195,7 +206,7 @@ Check that reminders and Android notification permissions are enabled. For more 
 
 ### Does this work with every Town Hall?
 
-Imports have automated coverage for Town Hall levels **1–18**, and the app has been checked with a real TH16 village. Testing across every village layout, game update, phone, and launcher is still ongoing. Unrecognized items keep their timers with a placeholder name that you can edit.
+Imports have automated coverage for Town Hall levels **1–19**, and the app has been checked with real TH16 and TH19 villages. Testing across every village layout, game update, phone, and launcher is still ongoing. Unrecognized items keep their timers with a placeholder name that you can edit.
 
 ### Is my village data uploaded?
 

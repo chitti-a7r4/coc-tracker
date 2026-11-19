@@ -71,8 +71,8 @@ public class VillageImportTest {
         Upgrade lab=data.upgrades.stream().filter(u->u.group.equals("Laboratory")).findFirst().get();
         assertEquals(lab.work-24000,lab.remaining(EXPORTED+1000,data.boostUntil));
     }
-    @Test public void importsTownHallLevelsOneThroughEighteenWithoutChangingTimerMath() throws Exception {
-        for(int level=1;level<=18;level++) {
+    @Test public void importsTownHallLevelsOneThroughNineteenWithoutChangingTimerMath() throws Exception {
+        for(int level=1;level<=19;level++) {
             JSONObject root=new JSONObject(fixture());
             root.getJSONArray("buildings").getJSONObject(0).put("lvl",level);
             VillageImport data=new VillageImport(root.toString(),names(),EXPORTED);
@@ -80,6 +80,41 @@ public class VillageImportTest {
             assertEquals(13,data.upgrades.size());
             assertEquals(70043000L-9*1608000L,data.upgrades.get(0).wallRemaining(EXPORTED,data.boostUntil));
         }
+    }
+
+    @Test public void importsTownHall19WithSquadBarracksAndDefensesWithoutWarnings() throws Exception {
+        String json = "{\"tag\":\"#PL2LUQLY\",\"timestamp\":1794890732,"
+            + "\"helpers\":[{\"data\":93000000,\"lvl\":8},{\"data\":93000001,\"lvl\":12},{\"data\":93000002,\"lvl\":1},{\"data\":93000003,\"lvl\":1}],"
+            + "\"buildings\":["
+            + "{\"data\":1000001,\"lvl\":19,\"cnt\":1},"
+            + "{\"data\":1000105,\"lvl\":1,\"cnt\":1},"
+            + "{\"data\":1000106,\"lvl\":0,\"timer\":47081},"
+            + "{\"data\":1000107,\"lvl\":2,\"cnt\":2},"
+            + "{\"data\":1000108,\"lvl\":0,\"timer\":940292}"
+            + "]}";
+        VillageImport data = new VillageImport(json, names(), 1794890732000L);
+        assertEquals(19, data.townHall);
+        assertEquals(2, data.upgrades.size());
+        Upgrade barracks = data.upgrades.stream().filter(u -> u.name.equals("Squad Barracks")).findFirst().orElse(null);
+        assertNotNull(barracks);
+        assertEquals(1, barracks.level);
+        assertEquals(47081000L, barracks.work);
+        assertEquals(R.drawable.art_1000106, Artwork.forName(null, barracks.name));
+
+        Upgrade firecracker = data.upgrades.stream().filter(u -> u.name.equals("Firecracker Tower")).findFirst().orElse(null);
+        assertNotNull(firecracker);
+        assertEquals(1, firecracker.level);
+        assertEquals(940292000L, firecracker.work);
+        assertEquals(R.drawable.art_1000108, Artwork.forName(null, firecracker.name));
+
+        assertEquals(R.drawable.art_town_hall_19, Artwork.townHall(null, data.townHall));
+        assertEquals(R.drawable.art_1000105, Artwork.forName(null, "Guardian Shrine"));
+        assertEquals(R.drawable.art_1000107, Artwork.forName(null, "Spiky Tower"));
+        assertEquals(R.drawable.art_93000002, Artwork.forName(null, "Alchemist"));
+        assertEquals(R.drawable.art_93000003, Artwork.forName(null, "Prospector"));
+
+        assertTrue("Should not have unknown item warnings for TH19 items",
+            data.warnings.stream().noneMatch(w -> w.contains("1000105") || w.contains("1000106") || w.contains("1000107") || w.contains("1000108")));
     }
 
     private JSONObject reported() throws Exception {

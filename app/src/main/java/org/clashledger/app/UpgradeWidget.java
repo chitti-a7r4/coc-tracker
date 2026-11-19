@@ -71,12 +71,17 @@ public final class UpgradeWidget extends AppWidgetProvider {
             root.setInt(R.id.widget_root,"setBackgroundResource",R.drawable.oled_bg);
             root.setInt(R.id.boost_strip,"setBackgroundResource",R.drawable.oled_tile);
             root.setInt(R.id.refresh,"setBackgroundResource",R.drawable.oled_tile);
+            root.setInt(R.id.import_village,"setBackgroundResource",R.drawable.oled_tile);
+            root.setInt(R.id.switch_village,"setBackgroundResource",R.drawable.oled_tile);
         }
         PendingIntent open = PendingIntent.getActivity(c, 0, new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent refresh = PendingIntent.getBroadcast(c, 1, new Intent(c, UpgradeWidget.class).setAction("org.clashledger.REFRESH"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Intent importIntent = new Intent(c, MainActivity.class).setAction("org.clashledger.IMPORT").putExtra("openImport", true).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent importPending = PendingIntent.getActivity(c, 5, importIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         root.setOnClickPendingIntent(R.id.village, open);
         root.setOnClickPendingIntent(R.id.footer, open);
         root.setOnClickPendingIntent(R.id.refresh, refresh);
+        root.setOnClickPendingIntent(R.id.import_village, importPending);
         root.setTextViewText(R.id.village, ledger.village);
         root.setImageViewResource(R.id.townhall, Artwork.townHall(c, ledger.townHall));
         root.setOnClickPendingIntent(R.id.townhall, open);

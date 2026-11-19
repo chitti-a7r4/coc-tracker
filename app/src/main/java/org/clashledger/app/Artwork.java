@@ -8,12 +8,13 @@ import java.util.Map;
 public final class Artwork {
     private static final Map<String,Integer> RESOURCES = new HashMap<>();
     private static final int[] TOWN_HALLS = {
-        R.drawable.art_town_hall_1, R.drawable.art_town_hall_2, R.drawable.art_town_hall_3, R.drawable.art_town_hall_4, R.drawable.art_town_hall_5, R.drawable.art_town_hall_6, R.drawable.art_town_hall_7, R.drawable.art_town_hall_8, R.drawable.art_town_hall_9, R.drawable.art_town_hall_10, R.drawable.art_town_hall_11, R.drawable.art_town_hall_12, R.drawable.art_town_hall_13, R.drawable.art_town_hall_14, R.drawable.art_town_hall_15, R.drawable.art_town_hall_16, R.drawable.art_town_hall_17, R.drawable.art_town_hall_18
+        R.drawable.art_town_hall_1, R.drawable.art_town_hall_2, R.drawable.art_town_hall_3, R.drawable.art_town_hall_4, R.drawable.art_town_hall_5, R.drawable.art_town_hall_6, R.drawable.art_town_hall_7, R.drawable.art_town_hall_8, R.drawable.art_town_hall_9, R.drawable.art_town_hall_10, R.drawable.art_town_hall_11, R.drawable.art_town_hall_12, R.drawable.art_town_hall_13, R.drawable.art_town_hall_14, R.drawable.art_town_hall_15, R.drawable.art_town_hall_16, R.drawable.art_town_hall_17, R.drawable.art_town_hall_18, R.drawable.art_town_hall_19
     };
     static {
         RESOURCES.put("Air Bombs", R.drawable.art_1000054);
         RESOURCES.put("Air Defense", R.drawable.art_1000012);
         RESOURCES.put("Air Sweeper", R.drawable.art_1000028);
+        RESOURCES.put("Alchemist", R.drawable.art_93000002);
         RESOURCES.put("Angry Jelly", R.drawable.art_73000011);
         RESOURCES.put("Apprentice Warden", R.drawable.art_4000097);
         RESOURCES.put("Archer", R.drawable.art_4000001);
@@ -71,6 +72,7 @@ public final class Artwork {
         RESOURCES.put("Elixir Collector", R.drawable.art_1000002);
         RESOURCES.put("Elixir Storage", R.drawable.art_1000003);
         RESOURCES.put("Firecracker", R.drawable.art_4000119);
+        RESOURCES.put("Firecracker Tower", R.drawable.art_1000108);
         RESOURCES.put("Firecrackers", R.drawable.art_1000050);
         RESOURCES.put("Firespitter", R.drawable.art_1000089);
         RESOURCES.put("Flame Flinger", R.drawable.art_4000091);
@@ -89,6 +91,7 @@ public final class Artwork {
         RESOURCES.put("Grand Warden", R.drawable.art_28000002);
         RESOURCES.put("Greedy Raven", R.drawable.art_73000017);
         RESOURCES.put("Guard Post", R.drawable.art_1000051);
+        RESOURCES.put("Guardian Shrine", R.drawable.art_1000105);
         RESOURCES.put("Headhunter", R.drawable.art_4000082);
         RESOURCES.put("Healer", R.drawable.art_4000007);
         RESOURCES.put("Healing Hut", R.drawable.art_1000082);
@@ -130,6 +133,7 @@ public final class Artwork {
         RESOURCES.put("Phoenix", R.drawable.art_73000004);
         RESOURCES.put("Poison Lizard", R.drawable.art_73000007);
         RESOURCES.put("Power P.E.K.K.A", R.drawable.art_4000036);
+        RESOURCES.put("Prospector", R.drawable.art_93000003);
         RESOURCES.put("Pumpkin Barbarian", R.drawable.art_4000048);
         RESOURCES.put("Raged Barbarian", R.drawable.art_4000031);
         RESOURCES.put("Ram Rider", R.drawable.art_4000094);
@@ -151,7 +155,9 @@ public final class Artwork {
         RESOURCES.put("Sneezy", R.drawable.art_73000016);
         RESOURCES.put("Spell Factory", R.drawable.art_1000020);
         RESOURCES.put("Spell Tower", R.drawable.art_1000072);
+        RESOURCES.put("Spiky Tower", R.drawable.art_1000107);
         RESOURCES.put("Spirit Fox", R.drawable.art_73000010);
+        RESOURCES.put("Squad Barracks", R.drawable.art_1000106);
         RESOURCES.put("Star Laboratory", R.drawable.art_1000046);
         RESOURCES.put("Stone Slammer", R.drawable.art_4000062);
         RESOURCES.put("Super Archer", R.drawable.art_4000027);
@@ -172,6 +178,7 @@ public final class Artwork {
         RESOURCES.put("Thrower", R.drawable.art_4000132);
         RESOURCES.put("Totem Thrower", R.drawable.art_4000194);
         RESOURCES.put("Town Hall", R.drawable.art_1000001);
+        RESOURCES.put("Town Hall 19", R.drawable.art_town_hall_19);
         RESOURCES.put("Troop Launcher", R.drawable.art_4000135);
         RESOURCES.put("Unicorn", R.drawable.art_73000003);
         RESOURCES.put("Valkyrie", R.drawable.art_4000012);
@@ -268,7 +275,7 @@ public final class Artwork {
         return R.drawable.ic_clock;
     }
     public static int townHall(Context context, int level) {
-        return TOWN_HALLS[Math.max(1,Math.min(18,level))-1];
+        return TOWN_HALLS[Math.max(1,Math.min(TOWN_HALLS.length,level))-1];
     }
     private Artwork() { }
 }

@@ -14,7 +14,7 @@ The 1.3.0 codebase has **92 JVM unit tests**, covering:
 - Reminder scheduling, early alerts, once-only delivery, account-specific keys and boost recalculation.
 - Clipboard export identity, duplicate/older comparisons, unrelated/future input rejection, stable release comparison, APK availability and daily update throttling.
 
-The Town Hall 1–18 test varies the Town Hall field in one fixture. It does not validate every real village layout or future game update. Lint passes with warnings; this is not a claim of warning-free code.
+The Town Hall 1–19 test varies the Town Hall field in one fixture. It does not validate every real village layout or future game update. Lint passes with warnings; this is not a claim of warning-free code.
 
 ## Emulator checks
 

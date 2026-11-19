@@ -143,14 +143,54 @@ public class LootCatalogueTest {
     }
 
     @Test
-    public void testMaxLevelDisplaysCost() {
-        // Town Hall 18 is max level
-        Upgrade th18 = new Upgrade("th:18", "Town Hall", "Builders", 18, 100000, 0);
+    public void testTownHall19Loot() {
+        Upgrade th = new Upgrade("th:1", "Town Hall", "Builders", 18, 100000, 0);
         LootSettings settings = new LootSettings();
-        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, th18, settings);
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, th, settings);
+
+        assertNotNull(loot);
+        assertEquals(19, loot.nextLevel);
+        assertEquals(27000000L, loot.baseCost);
+        assertEquals("gold", loot.resource);
+        assertFalse(loot.isMax);
+    }
+
+    @Test
+    public void testTH19SquadBarracksAndDefenses() {
+        Upgrade sb = new Upgrade("sb:1", "Squad Barracks", "Builders", 11, 100000, 0);
+        Upgrade st = new Upgrade("st:1", "Spiky Tower", "Builders", 1, 100000, 0);
+        Upgrade ft = new Upgrade("ft:1", "Firecracker Tower", "Builders", 1, 100000, 0);
+
+        LootSettings settings = new LootSettings();
+        LootCatalogue.NextLoot sbLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, sb, settings);
+        LootCatalogue.NextLoot stLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, st, settings);
+        LootCatalogue.NextLoot ftLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, ft, settings);
+
+        assertNotNull(sbLoot);
+        assertEquals(12, sbLoot.nextLevel);
+        assertEquals(32000000L, sbLoot.baseCost);
+        assertEquals("elixir", sbLoot.resource);
+
+        assertNotNull(stLoot);
+        assertEquals(2, stLoot.nextLevel);
+        assertEquals(510000L, stLoot.baseCost);
+        assertEquals("dark_elixir", stLoot.resource);
+
+        assertNotNull(ftLoot);
+        assertEquals(2, ftLoot.nextLevel);
+        assertEquals(32000000L, ftLoot.baseCost);
+        assertEquals("gold", ftLoot.resource);
+    }
+
+    @Test
+    public void testMaxLevelDisplaysCost() {
+        // Town Hall 19 is max level
+        Upgrade th19 = new Upgrade("th:19", "Town Hall", "Builders", 19, 100000, 0);
+        LootSettings settings = new LootSettings();
+        LootCatalogue.NextLoot loot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, th19, settings);
 
         assertNotNull(loot);
         assertTrue(loot.isMax);
-        assertEquals(24000000L, loot.discountedCost);
+        assertEquals(27000000L, loot.discountedCost);
     }
 }

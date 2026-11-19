@@ -31,6 +31,8 @@ public final class CompactWidget {
         PendingIntent open=PendingIntent.getActivity(c,0,new Intent(c,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         root.setTextViewText(R.id.village,ledger.village);root.setImageViewResource(R.id.townhall,Artwork.townHall(c,ledger.townHall));
         root.setOnClickPendingIntent(R.id.village,open);root.setOnClickPendingIntent(R.id.townhall,open);root.setOnClickPendingIntent(R.id.footer,open);
+        Intent importIntent=new Intent(c,MainActivity.class).setAction("org.clashledger.IMPORT").putExtra("openImport",true).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        root.setOnClickPendingIntent(R.id.import_village,PendingIntent.getActivity(c,5,importIntent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
         root.setOnClickPendingIntent(R.id.refresh,PendingIntent.getBroadcast(c,1,new Intent(c,UpgradeWidget.class).setAction("org.clashledger.REFRESH"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
         long research=UpgradeSummary.next(ledger.upgrades,"Laboratory",now,ledger.boostUntil);
         root.setTextViewText(R.id.widget_meta,ledger.busy(now)+"/"+ledger.builders+" builders · Lab "+(research==0?"available":Upgrade.duration(research)));

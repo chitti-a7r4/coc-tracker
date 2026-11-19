@@ -33,6 +33,15 @@ public class BoostTest {
         assertEquals(31*H,u.wallRemaining(T,T+H));
         assertEquals(30*H,u.remaining(T+H,T+H));
     }
+    @Test public void labAssistantWorksAlongsideResearchPotionAdditively() {
+        Upgrade u=upgrade("Laboratory",48);u.helperLevel=12;u.helperEnd=T+H;
+        u.boosts.ends[0]=T+H; // Research potion active for 1 hour
+        // 1 hour consumed: 24 hours (Research Potion) + 12 hours (Lab Assistant L12) = 36 hours.
+        // Remaining work after 1 hour: 48 - 36 = 12 hours.
+        // Wall remaining: 1h + 12h = 13 hours.
+        assertEquals(13*H,u.wallRemaining(T,0));
+        assertEquals(12*H,u.remaining(T+H,0));
+    }
     @Test public void helperFutureSessionsAreOptInAndRespectCooldown() {
         Upgrade u=upgrade("Builders",72);u.helperLevel=8;u.helperEnd=T+H;u.helperNext=T+23*H;u.helperRecurrent=true;
         assertEquals(64*H,u.wallRemaining(T,0));
