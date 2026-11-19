@@ -33,6 +33,7 @@ public final class WidgetRowsService extends RemoteViewsService {
         long now = System.currentTimeMillis(), elapsed = SystemClock.elapsedRealtime();
         String pkg = context.getPackageName();
         String style=context.getSharedPreferences("display",0).getString("timerStyle","compact");
+        LootSettings lootSettings = new LootSettings(context);
         List<Upgrade> ordered = new ArrayList<>(ledger.upgrades);
         ordered.sort(java.util.Comparator.comparingLong(u -> u.wallRemaining(now, ledger.boostUntil)));
         for (String group : Upgrade.GROUPS) {
@@ -53,7 +54,8 @@ public final class WidgetRowsService extends RemoteViewsService {
                 row.setChronometerCountDown(R.id.countdown, true);
                 row.setChronometer(R.id.countdown, elapsed + left, null, left > 0 && style.equals("clock"));
                 if(!style.equals("clock")||left==0)row.setTextViewText(R.id.countdown,TimerFormat.format(left,style));
-                row.setTextViewText(R.id.finish, left == 0 ? "Tap to manage" : "Finishes " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date(now + left))+(u.helperLabel(now).isEmpty()?"":"\n"+u.helperLabel(now)));
+                String loot = LootCatalogue.nextLootLabel(context, u, lootSettings);
+                row.setTextViewText(R.id.finish, left == 0 ? "Tap to manage" : "Finishes " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date(now + left))+(loot.isEmpty()?"":"  ·  "+loot)+(u.helperLabel(now).isEmpty()?"":"\n"+u.helperLabel(now)));
                 row.setProgressBar(R.id.progress, 1000, u.progress(now, ledger.boostUntil), false);
                 row.setOnClickFillInIntent(R.id.name, new Intent());
                 row.setOnClickFillInIntent(R.id.countdown, new Intent());

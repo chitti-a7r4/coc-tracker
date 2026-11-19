@@ -52,14 +52,14 @@ public final class Ledger {
             JSONObject o=rows.getJSONObject(i);
             Upgrade u=new Upgrade(o.getString("id"),o.getString("name"),o.getString("group"),o.getInt("level"),o.getLong("work"),o.getLong("anchor"));
             u.boosts=boosts;u.helperLevel=o.optInt("helperLevel");u.helperEnd=o.optLong("helperEnd");u.helperNext=o.optLong("helperNext");u.helperRecurrent=o.optBoolean("helperRecurrent");
-            u.goblin=o.optBoolean("goblin");u.total=o.getLong("total");upgrades.add(u);
+            u.goblin=o.optBoolean("goblin");u.total=o.getLong("total");u.itemId=o.optString("itemId");upgrades.add(u);
         }
     }
     private JSONObject snapshot() throws JSONException {
         JSONArray rows=new JSONArray();
         for(Upgrade u:upgrades)rows.put(new JSONObject().put("id",u.id).put("name",u.name).put("group",u.group).put("level",u.level)
             .put("helperLevel",u.helperLevel).put("helperEnd",u.helperEnd).put("helperNext",u.helperNext).put("helperRecurrent",u.helperRecurrent)
-            .put("goblin",u.goblin).put("work",u.work).put("total",u.total).put("anchor",u.anchor));
+            .put("goblin",u.goblin).put("work",u.work).put("total",u.total).put("anchor",u.anchor).put("itemId",u.itemId));
         return new JSONObject().put("village",village).put("townHall",townHall).put("builders",builders).put("baseBuilders",baseBuilders).put("playerTag",playerTag)
             .put("importedAt",importedAt).put("boostUntil",boostUntil).put("boosts",boosts.json()).put("upgrades",rows);
     }

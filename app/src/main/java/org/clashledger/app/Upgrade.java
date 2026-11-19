@@ -4,7 +4,7 @@ package org.clashledger.app;
 public final class Upgrade {
     public static final String[] GROUPS = {"Builders", "Laboratory", "Pets", "Builder Base", "Star Laboratory", "Forge", "Auto Forge"};
     public boolean goblin;
-    public String id, name, group;
+    public String id, name, group, itemId = "";
     public int level;
     public long work, total, anchor;
     public BoostState boosts = new BoostState();

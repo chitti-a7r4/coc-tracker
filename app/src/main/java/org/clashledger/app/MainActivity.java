@@ -254,11 +254,13 @@ public final class MainActivity extends Activity {
         boostArtwork.setImageResource(Artwork.boost(ledger.boosts,ledger.boostUntil,now));
         String helper="";for(Upgrade u:ledger.upgrades)if(u.remaining(now,ledger.boostUntil)>0&&!u.helperLabel(now).isEmpty())helper+=(helper.isEmpty()?"":"\n")+u.name+" · "+u.helperLabel(now);
         boostCaption.setText(helper.isEmpty()?"Tap to manage potions, helpers & events":helper);
+        LootSettings lootSettings=new LootSettings(this);
         for(TimerBinding b:bindings) {
             Upgrade u=b.upgrade; long left=u.wallRemaining(now,ledger.boostUntil);
             b.remaining.setText(left>0?TimerFormat.format(left,timerStyle()):"Ready to collect");
             b.remaining.setTextColor(left>0?ink:green);
-            b.finish.setText(left>0?"↗ "+DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT).format(new Date(now+left))+(u.helperLabel(now).isEmpty()?"":"  ·  "+u.helperLabel(now)):"Upgrade complete");
+            String loot=LootCatalogue.nextLootLabel(this,u,lootSettings);
+            b.finish.setText(left>0?"↗ "+DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT).format(new Date(now+left))+(u.helperLabel(now).isEmpty()?"":"  ·  "+u.helperLabel(now))+(loot.isEmpty()?"":"  ·  "+loot):"Upgrade complete");
             b.progress.setProgress(u.progress(now,ledger.boostUntil));
         }
     }
@@ -329,6 +331,7 @@ public final class MainActivity extends Activity {
         for(int i=0;i<BoostState.NAMES.length;i++) { final int index=i; space(f,5); f.addView(button(BoostState.NAMES[i]+" · "+BoostState.RATES[i]+"×",()->{menu.dismiss();boostEditor(index);})); }
         space(f,12); f.addView(button("Builder’s Apprentice / Lab Assistant",()->{menu.dismiss();helperOptions();}));
         space(f,5); f.addView(button("Event multiplier adjustment",()->{menu.dismiss();eventOptions();}));
+        space(f,5); f.addView(button("Upgrade loot & discounts",()->{menu.dismiss();lootOptions();}));
         ScrollView scroll=new ScrollView(this);scroll.addView(f);
         menu.setView(scroll);menu.show();
     }
@@ -388,7 +391,39 @@ public final class MainActivity extends Activity {
     }
     private void settingsMenu() {
         new AlertDialog.Builder(this).setTitle("Your village, your way")
-            .setItems(new String[]{"Switch / manage villages", "Village settings", "Boosts & helpers", "Countdown format", "Appearance & widget layout", "Alarms & notifications", "Check for updates", "Crash diagnostics", "Import & update preferences", "About & artwork"},(d,w)->{if(w==0)accounts();else if(w==1)settings();else if(w==2)boostOptions();else if(w==3)displayOptions();else if(w==4)appearance();else if(w==5)reminderOptions();else if(w==6)AppUpdates.show(this);else if(w==7)CrashReport.show(this);else if(w==8)convenienceOptions();else about();}).setNegativeButton("Close",null).show();
+            .setItems(new String[]{"Switch / manage villages", "Village settings", "Boosts & helpers", "Upgrade loot & discounts", "Countdown format", "Appearance & widget layout", "Alarms & notifications", "Check for updates", "Crash diagnostics", "Import & update preferences", "About & artwork"},(d,w)->{if(w==0)accounts();else if(w==1)settings();else if(w==2)boostOptions();else if(w==3)lootOptions();else if(w==4)displayOptions();else if(w==5)appearance();else if(w==6)reminderOptions();else if(w==7)AppUpdates.show(this);else if(w==8)CrashReport.show(this);else if(w==9)convenienceOptions();else about();}).setNegativeButton("Close",null).show();
+    }
+    private void lootOptions() {
+        LootSettings settings=new LootSettings(this);
+        LinearLayout f=form();
+        CheckBox enabled=new CheckBox(this);enabled.setText("Show next upgrade loot in app & widget");enabled.setTextColor(ink);enabled.setChecked(settings.enabled);f.addView(enabled);
+        f.addView(text("Shows the required resources for the next level near completion times.",12,muted,false));
+        space(f,12);
+        CheckBox builderJam=new CheckBox(this);builderJam.setText("Builder Jam event (50% discount)");builderJam.setTextColor(ink);builderJam.setChecked(settings.builderJam);f.addView(builderJam);
+        f.addView(text("Applies a 50% discount to all Home Village & Builder Base building upgrades.",12,muted,false));
+        space(f,12);
+        f.addView(label("GOLD PASS BUILDER DISCOUNT",gold));space(f,6);
+        RadioGroup gpBuilder=new RadioGroup(this);gpBuilder.setOrientation(RadioGroup.HORIZONTAL);
+        int[] gpVals={0,10,15,20};String[] gpLabels={"None","10%","15%","20%"};
+        RadioButton[] gpBuilderBtns=new RadioButton[4];
+        for(int i=0;i<4;i++){RadioButton rb=new RadioButton(this);rb.setId(View.generateViewId());rb.setText(gpLabels[i]);rb.setTextColor(ink);gpBuilderBtns[i]=rb;gpBuilder.addView(rb);if(settings.goldPassBuilder==gpVals[i])gpBuilder.check(rb.getId());}
+        f.addView(gpBuilder);space(f,12);
+        f.addView(label("GOLD PASS RESEARCH DISCOUNT",gold));space(f,6);
+        RadioGroup gpResearch=new RadioGroup(this);gpResearch.setOrientation(RadioGroup.HORIZONTAL);
+        RadioButton[] gpResearchBtns=new RadioButton[4];
+        for(int i=0;i<4;i++){RadioButton rb=new RadioButton(this);rb.setId(View.generateViewId());rb.setText(gpLabels[i]);rb.setTextColor(ink);gpResearchBtns[i]=rb;gpResearch.addView(rb);if(settings.goldPassResearch==gpVals[i])gpResearch.check(rb.getId());}
+        f.addView(gpResearch);space(f,12);
+        EditText custom=field(f,"Custom event discount % (0–50)",String.valueOf(settings.customDiscount),true);
+        ScrollView scroll=new ScrollView(this);scroll.addView(f);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Upgrade loot & discounts").setView(scroll).setNegativeButton("Cancel",null).setPositiveButton("Save",(d,w)->{
+            settings.enabled=enabled.isChecked();settings.builderJam=builderJam.isChecked();
+            int bId=gpBuilder.getCheckedRadioButtonId();
+            for(int i=0;i<4;i++){if(gpBuilderBtns[i].getId()==bId||gpBuilderBtns[i].isChecked())settings.goldPassBuilder=gpVals[i];}
+            int rId=gpResearch.getCheckedRadioButtonId();
+            for(int i=0;i<4;i++){if(gpResearchBtns[i].getId()==rId||gpResearchBtns[i].isChecked())settings.goldPassResearch=gpVals[i];}
+            try{int c=Integer.parseInt(custom.getText().toString().trim());settings.customDiscount=Math.max(0,Math.min(50,c));}catch(Exception ignored){}
+            settings.save();changed();
+        }).create();dialog.show();
     }
     private void convenienceOptions(){
         android.content.SharedPreferences prefs=ClipboardSuggestions.preferences(this);LinearLayout f=form();
