@@ -104,7 +104,7 @@ public final class LootCatalogue {
         byte[] buffer = new byte[8192];
         int n;
         while ((n = in.read(buffer)) != -1) bytes.write(buffer, 0, n);
-        return bytes.toString(StandardCharsets.UTF_8);
+        return bytes.toString("UTF-8");
     }
 
     public static NextLoot nextLoot(Context context, Upgrade u, LootSettings settings) {

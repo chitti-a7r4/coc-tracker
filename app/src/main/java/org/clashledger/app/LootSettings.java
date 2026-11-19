@@ -42,7 +42,7 @@ public final class LootSettings {
 
     public double effectiveMultiplier(String group, String resource) {
         double eventMult = 1.0;
-        if (builderJam && (group.equals("Builders") || group.equals("Builder Base") || group.equals("Pets"))) {
+        if (builderJam && ("Builders".equals(group) || "Builder Base".equals(group) || "Pets".equals(group))) {
             eventMult = 0.50;
         }
         if (customDiscount > 0) {
@@ -51,7 +51,7 @@ public final class LootSettings {
         }
 
         double gpMult = 1.0;
-        if (group.equals("Laboratory") || group.equals("Star Laboratory")) {
+        if ("Laboratory".equals(group) || "Star Laboratory".equals(group)) {
             if (goldPassResearch > 0) gpMult = Math.max(0.0, 1.0 - goldPassResearch / 100.0);
         } else {
             if (goldPassBuilder > 0) gpMult = Math.max(0.0, 1.0 - goldPassBuilder / 100.0);
