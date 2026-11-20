@@ -255,5 +255,18 @@
   "art_town_hall_6": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/buildings/home-village/town_hall/level_6.webp",
   "art_town_hall_7": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/buildings/home-village/town_hall/level_7.webp",
   "art_town_hall_8": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/buildings/home-village/town_hall/level_8.webp",
-  "art_town_hall_9": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/buildings/home-village/town_hall/level_9.webp"
+  "art_town_hall_9": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/buildings/home-village/town_hall/level_9.webp",
+  "art_4000195": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/barch_squad/icon.webp",
+  "art_4000196": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/giant_wizard_squad/icon.webp",
+  "art_4000197": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/wall_breaker_squad/icon.webp",
+  "art_4000198": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/minion_squad/icon.webp",
+  "art_4000199": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/balloon_squad/icon.webp",
+  "art_4000200": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/golem_witch_squad/icon.webp",
+  "art_4000201": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/hog_rider_squad/icon.webp",
+  "art_4000202": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/miner_squad/icon.webp",
+  "art_4000203": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/healer_squad/icon.webp",
+  "art_4000204": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/pekka_titan_squad/icon.webp",
+  "art_4000205": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/dragons_squad/icon.webp",
+  "art_4000206": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/troops/baby_dragon_squad/icon.webp",
+  "art_26000153": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/spells/heroic_spell.webp"
 }

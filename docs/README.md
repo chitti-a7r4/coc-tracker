@@ -2,6 +2,7 @@
 
 These files are intended to be committed and pushed with the project:
 
+- [Release 1.4.0](RELEASE_1.4.0.md) covers TH19, next-level costs and widget import.
 - [Release 1.3.0](RELEASE_1.3.0.md): changes since 1.2.1, known limits and user-facing update information. Suitable for the GitHub release description.
 - [Validation](VALIDATION.md): testing scope, commands and known limitations for contributors.
 - [Artwork](ARTWORK.md) and [asset sources](artwork-sources.json): attribution and licensing information; retain these when redistributing.

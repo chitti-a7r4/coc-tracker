@@ -15,14 +15,8 @@ public final class ClipboardSuggestions {
     public static void check(Activity activity,java.util.function.BooleanSupplier stillCurrent,java.util.function.Consumer<String> review){
         SharedPreferences prefs=preferences(activity);
         if(!prefs.getBoolean("suggestClipboard",false)||!activity.hasWindowFocus())return;
-        String text;
-        try {
-            ClipData clip=activity.getSystemService(ClipboardManager.class).getPrimaryClip();
-            if(clip==null||clip.getItemCount()==0)return;
-            CharSequence value=clip.getItemAt(0).getText();
-            if(value==null||value.length()>1_000_000)return;
-            text=value.toString();
-        }catch(SecurityException e){return;}
+        String text = readText(activity);
+        if (text == null) return;
         new Thread(()->{
             ClipboardOffer offer;
             try{offer=new ClipboardOffer(text,System.currentTimeMillis());}
@@ -43,6 +37,17 @@ public final class ClipboardSuggestions {
                     .setOnCancelListener(d->dismiss(prefs,offer.key)).show();
             });
         },"clipboard-export-review").start();
+    }
+    static String readText(Context context) {
+        try {
+            ClipboardManager manager = context.getSystemService(ClipboardManager.class);
+            ClipData clip = manager == null ? null : manager.getPrimaryClip();
+            if (clip == null || clip.getItemCount() == 0) return null;
+            CharSequence value = clip.getItemAt(0).getText();
+            return value == null || value.length() > 1_000_000 ? null : value.toString();
+        } catch (SecurityException denied) {
+            return null;
+        }
     }
     private static void dismiss(SharedPreferences prefs,String key){
         Set<String> ignored=new HashSet<>(prefs.getStringSet("dismissedExports",java.util.Collections.emptySet()));

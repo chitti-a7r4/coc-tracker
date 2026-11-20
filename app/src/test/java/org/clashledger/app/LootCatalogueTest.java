@@ -56,12 +56,12 @@ public class LootCatalogueTest {
         assertNotNull(homeLoot);
         assertEquals("gold", homeLoot.resource);
         assertEquals(21, homeLoot.nextLevel);
-        assertEquals(18500000L, homeLoot.baseCost);
+        assertEquals(3000000L, homeLoot.baseCost);
 
         assertNotNull(bbLoot);
         assertEquals("builder_gold", bbLoot.resource);
         assertEquals(10, bbLoot.nextLevel);
-        assertEquals(1500000L, bbLoot.baseCost);
+        assertEquals(4500000L, bbLoot.baseCost);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class LootCatalogueTest {
 
         assertNotNull(loot);
         assertEquals(18, loot.nextLevel);
-        assertEquals(24000000L, loot.baseCost);
+        assertEquals(20000000L, loot.baseCost);
         assertEquals("gold", loot.resource);
     }
 
@@ -87,11 +87,11 @@ public class LootCatalogueTest {
 
         assertNotNull(rcLoot);
         assertEquals(4, rcLoot.nextLevel);
-        assertEquals(26500000L, rcLoot.baseCost);
+        assertEquals(22000000L, rcLoot.baseCost);
 
         assertNotNull(matLoot);
         assertEquals(4, matLoot.nextLevel);
-        assertEquals(27000000L, matLoot.baseCost);
+        assertEquals(23000000L, matLoot.baseCost);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class LootCatalogueTest {
 
         assertNotNull(loot);
         assertEquals(8, loot.nextLevel);
-        assertEquals(24000000L, loot.baseCost);
+        assertEquals(20000000L, loot.baseCost);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class LootCatalogueTest {
 
         assertNotNull(loot);
         assertEquals(107, loot.nextLevel);
-        assertEquals(470000L, loot.baseCost);
+        assertEquals(450000L, loot.baseCost);
         assertEquals("dark_elixir", loot.resource);
     }
 
@@ -130,15 +130,15 @@ public class LootCatalogueTest {
 
         assertNotNull(loot);
         assertEquals(4, loot.nextLevel);
-        assertEquals(26500000L, loot.baseCost);
-        assertEquals(21200000L, loot.discountedCost);
+        assertEquals(22000000L, loot.baseCost);
+        assertEquals(17600000L, loot.discountedCost);
         assertEquals(20, loot.discountPercent);
 
         // Builder Jam + GP stacking: 50% * 80% = 40% cost -> 60% discount
         settings.builderJam = true;
         LootCatalogue.NextLoot stackedLoot = LootCatalogue.resolveLoot(catalog, homeNames, bbNames, rc, settings);
         assertNotNull(stackedLoot);
-        assertEquals(10600000L, stackedLoot.discountedCost);
+        assertEquals(8800000L, stackedLoot.discountedCost);
         assertEquals(60, stackedLoot.discountPercent);
     }
 
@@ -192,5 +192,34 @@ public class LootCatalogueTest {
         assertNotNull(loot);
         assertTrue(loot.isMax);
         assertEquals(27000000L, loot.discountedCost);
+    }
+
+    @Test
+    public void missingPricesAndFutureLevelsHaveNoLootLabel() throws Exception {
+        Upgrade hut = new Upgrade("hut", "Builder's Hut", "Builders", 8, 100000, 0);
+        LootSettings settings = new LootSettings();
+        assertEquals(26000000L, LootCatalogue.resolveLoot(catalog, homeNames, bbNames, hut, settings).baseCost);
+        catalog.getJSONObject("1000015").getJSONObject("costs").remove("9");
+        assertNull(LootCatalogue.resolveLoot(catalog, homeNames, bbNames, hut, settings));
+        Upgrade future = new Upgrade("new", "Hero Hall", "Builders", 14, 100000, 0);
+        assertNull(LootCatalogue.resolveLoot(catalog, homeNames, bbNames, future, settings));
+    }
+
+    @Test
+    public void importsSquadAndSpellResearchWithTargetLevelCosts() throws Exception {
+        JSONObject names;
+        try (InputStream in = getClass().getResourceAsStream("/item_names.json")) {
+            names = new JSONObject(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+        }
+        String json = "{\"tag\":\"#TH19\",\"timestamp\":1794890732,\"buildings\":[{\"data\":1000001,\"lvl\":19}],\"units\":[{\"data\":4000195,\"lvl\":1,\"timer\":60}],\"spells\":[{\"data\":26000153,\"lvl\":2,\"timer\":80}]}";
+        VillageImport village = new VillageImport(json, names, 1794890732000L);
+        assertEquals(2, village.upgrades.size());
+        Upgrade squad = village.upgrades.get(0);
+        assertEquals("Laboratory", squad.group);
+        assertEquals("Barch Squad", squad.name);
+        assertEquals(32500000L, LootCatalogue.resolveLoot(catalog, homeNames, bbNames, squad, new LootSettings()).baseCost);
+        Upgrade spell = village.upgrades.get(1);
+        assertEquals("Heroic Spell", spell.name);
+        assertEquals(32000000L, LootCatalogue.resolveLoot(catalog, homeNames, bbNames, spell, new LootSettings()).baseCost);
     }
 }

@@ -72,12 +72,12 @@ The overview’s third summary card is now **Next lab**, replacing the old Ready
 
 ## New in 1.4.0
 
-- **Town Hall 19 ("Clash of Titans"):** Full support with Town Hall 19 base artwork, upgrade cost (27M Gold), and export parsing.
-- **New Defenses & Buildings:** Guardian Shrine (`1000105`), Squad Barracks (`1000106` with 12-level progression), Spiky Tower (`1000107`), and Firecracker Tower (`1000108`) with artwork, name mappings, and upgrade costs.
-- **New Helpers:** Added mappings and artwork for The Alchemist (`93000002`) and The Prospector (`93000003`).
-- **Next-Level Loot Planner:** Displays required resource costs for the next upgrade level directly on queue items, editors, and widgets. Adjust calculations with Gold Pass builder/research discounts (10%/15%/20%), event discounts (Builder Jam 50%), or custom percentages.
-- **Widget Enhancements:** Replaced the widget refresh icon with a clean, mathematically symmetrical gold vector, and added a direct 1-tap **Import button** right on the widget header with smart clipboard export detection.
-- **Expanded Level Caps:** Updated catalog capacities for storages (Lv 20), Multi-Archer Tower (Lv 5), Ricochet Cannon (Lv 5), Spell Factory (Lv 10), and Walls (Lv 20).
+- **Town Hall 19 (“Clash of Titans”).** Added TH19 artwork and export support, including the 27M Gold upgrade from TH18.
+- **New buildings and defenses.** Guardian Shrine, Squad Barracks, Spiky Tower, and Firecracker Tower have artwork and name mappings. The catalogue includes all 12 Squad Barracks prices and both levels of Spiky Tower and Firecracker Tower.
+- **New research and helpers.** Heroic Spell and all 12 squads have names, icons, and research prices. The Alchemist and Prospector have names and artwork.
+- **Next-level loot planner.** See the cost of the upgrade after the one in progress in the queue and detailed widget. Set Gold Pass builder or research discounts (10%, 15%, or 20%), Builder Jam (50%), or a custom percentage.
+- **Widget improvements.** Both layouts have a redesigned gold refresh icon and an **Import** button that opens the review for a copied village export.
+- **Expanded level caps.** The updated catalogue includes Gold and Elixir Storages (20), Dark Elixir Storage (14), Multi-Archer Tower and Ricochet Cannon (5), Spell Factory (10), and Walls (20), plus revised prices for earlier levels.
 
 [Full 1.4.0 release notes](docs/RELEASE_1.4.0.md) · [1.3.0 release notes](docs/RELEASE_1.3.0.md)
 

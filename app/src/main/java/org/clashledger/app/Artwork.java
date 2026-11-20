@@ -208,6 +208,19 @@ public final class Artwork {
         RESOURCES.put("Mega Mine", R.drawable.art_12000014);
         RESOURCES.put("Tornado Trap", R.drawable.art_12000016);
         RESOURCES.put("Giga Bomb", R.drawable.art_12000020);
+        RESOURCES.put("Barch Squad", R.drawable.art_4000195);
+        RESOURCES.put("Giant Wizard Squad", R.drawable.art_4000196);
+        RESOURCES.put("Wall Breaker Squad", R.drawable.art_4000197);
+        RESOURCES.put("Minion Squad", R.drawable.art_4000198);
+        RESOURCES.put("Balloon Squad", R.drawable.art_4000199);
+        RESOURCES.put("Golem Witch Squad", R.drawable.art_4000200);
+        RESOURCES.put("Hog Rider Squad", R.drawable.art_4000201);
+        RESOURCES.put("Miner Squad", R.drawable.art_4000202);
+        RESOURCES.put("Healer Squad", R.drawable.art_4000203);
+        RESOURCES.put("P.E.K.K.A Titan Squad", R.drawable.art_4000204);
+        RESOURCES.put("Dragons Squad", R.drawable.art_4000205);
+        RESOURCES.put("Baby Dragon Squad", R.drawable.art_4000206);
+        RESOURCES.put("Heroic Spell", R.drawable.art_26000153);
         RESOURCES.put("Lightning Spell", R.drawable.art_26000000);
         RESOURCES.put("Healing Spell", R.drawable.art_26000001);
         RESOURCES.put("Rage Spell", R.drawable.art_26000002);
@@ -234,6 +247,7 @@ public final class Artwork {
         return id != null ? id : R.drawable.art_town_hall_1;
     }
     public static int forUpgrade(Context context, Upgrade u) {
+        if ("Town Hall".equals(u.name)) return townHall(context, u.level);
         if(u.isForge())return R.drawable.art_capital_gold;
         if(u.group.equals("Builder Base")||u.group.equals("Star Laboratory")) {
             switch(u.name) {

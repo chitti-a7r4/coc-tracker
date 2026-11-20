@@ -86,7 +86,7 @@ public final class LootCatalogue {
         while (keys.hasNext()) {
             String idStr = keys.next();
             String name = names.optString(idStr);
-            if (name.isEmpty()) continue;
+            if (name.isEmpty() || catalogCache == null || !catalogCache.has(idStr)) continue;
             try {
                 long idNum = Long.parseLong(idStr);
                 String cleanName = name.toLowerCase(java.util.Locale.US);
@@ -123,9 +123,7 @@ public final class LootCatalogue {
                 cleanName = cleanName.substring(cleanName.lastIndexOf(" · ") + 3).trim();
             }
             Map<String, String> primary = isBase ? bbNames : homeNames;
-            Map<String, String> fallback = isBase ? homeNames : bbNames;
             if (primary != null) id = primary.get(cleanName);
-            if ((id == null || id.isEmpty()) && fallback != null) id = fallback.get(cleanName);
         }
         if (id == null || !catalog.has(id)) return null;
 
@@ -136,38 +134,15 @@ public final class LootCatalogue {
             if (costs == null) return null;
 
             int discountPercent = settings.discountPercent(u.group, resource);
-            int nextLevel = u.level + 1;
-            String nextKey = String.valueOf(nextLevel);
-            if (costs.has(nextKey)) {
-                long base = costs.getLong(nextKey);
-                long discounted = settings.calculateCost(base, u.group, resource);
-                return new NextLoot(nextLevel, base, discounted, discountPercent, resource, false, true);
-            }
-
-            String currentKey = String.valueOf(u.level);
-            if (costs.has(currentKey)) {
-                long base = costs.getLong(currentKey);
-                long discounted = settings.calculateCost(base, u.group, resource);
-                return new NextLoot(u.level, base, discounted, discountPercent, resource, true, true);
-            }
-
-            int bestLvl = -1;
-            long bestCost = 0;
-            Iterator<String> costKeys = costs.keys();
-            while (costKeys.hasNext()) {
-                String k = costKeys.next();
-                try {
-                    int l = Integer.parseInt(k);
-                    if (l > bestLvl) {
-                        bestLvl = l;
-                        bestCost = costs.getLong(k);
-                    }
-                } catch (Exception ignored) { }
-            }
-            if (bestLvl > 0) {
-                long discounted = settings.calculateCost(bestCost, u.group, resource);
-                return new NextLoot(bestLvl, bestCost, discounted, discountPercent, resource, u.level >= bestLvl, true);
-            }
+            int maxLevel = item.getInt("maxLevel");
+            if (u.level < 0 || u.level > maxLevel) return null;
+            boolean atMax = u.level == maxLevel;
+            int target = atMax ? u.level : u.level + 1;
+            String key = String.valueOf(target);
+            if (!costs.has(key)) return null;
+            long base = costs.getLong(key);
+            long discounted = settings.calculateCost(base, u.group, resource);
+            return new NextLoot(target, base, discounted, discountPercent, resource, atMax, true);
         } catch (JSONException ignored) { }
 
         return null;

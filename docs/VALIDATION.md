@@ -6,7 +6,9 @@
 ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ```
 
-The 1.3.0 codebase has **92 JVM unit tests**, covering:
+The JVM suite covers the following behavior.
+
+- Next-level loot, explicit maximum levels, missing prices, and TH19 building, squad and spell fixtures.
 
 - Work consumption, countdown formats, boost boundaries, potions/snacks, Clock Tower, helpers and optional repeat forecasts.
 - Export validation, the anonymized reported TH18 JSON, nested crafted modules, inherited Goblin flags, optional names and Builder Hall capacity.
@@ -18,7 +20,9 @@ The Town Hall 1–19 test varies the Town Hall field in one fixture. It does not
 
 ## Emulator checks
 
-Stock Android 13 / API 33 and Android 16 / API 36 were used during development of this release:
+For 1.4.0, the signed release APK installed over the published 1.3.0 APK on an Android 16 emulator. A saved village remained visible after the update. The widget import action opened the review screen with a copied export and automatic clipboard suggestions disabled.
+
+Stock Android 13 / API 33 and Android 16 / API 36 were used during development of 1.3.0:
 
 - Clipboard button → preview; native rich-text paste; keyboard commit; bounded visible text; clearing a loaded export.
 - Full foreground suggestion workflow: opt-in, Review, explicit import of a synthetic running crafted module, duplicate suppression, older warnings, dismissal and matching another tag without changing the selected village prematurely.
@@ -63,6 +67,12 @@ Use a test emulator. ConvenienceSmoke temporarily changes preferences/accounts a
 - Clipboard suggestions read only when focused and opted in. Dismissal history is bounded to 64 export identities. Import remains explicit.
 - Automatic update checks run when the app opens, at most once per day, not continuously in the background. Download/install stays user-controlled.
 - Game activity is not automatically observed. New actions require an export or manual edit; inventory-based tracking remains a proposal.
+
+## Town Hall 19 data
+
+The offline catalogue uses building and trap prices at the target level. Troop, hero, spell, pet and Guardian rows give the cost to leave the listed level, so the app stores those prices against the following level. The item’s final level is recorded separately. Guardian prices for levels 2–5 follow Supercell’s published balance changes. [Game data snapshot](https://github.com/ClashKingInc/ClashKingAssets/tree/6da8ce864afe2b4510d3342e1c7374e48d7f5a49/assets/static_data) · [Supercell update notes](https://supercell.com/en/games/clashofclans/blog/release-notes/the-clash-of-titans-update-is-rolling-out/)
+
+Squad research has fixture coverage in the standard troop export section. Its placement in a live export with active squad research still needs confirmation.
 
 ## Implementation references
 

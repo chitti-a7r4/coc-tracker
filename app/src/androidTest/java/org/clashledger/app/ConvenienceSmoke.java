@@ -23,6 +23,9 @@ public final class ConvenienceSmoke extends Instrumentation {
             JSONObject data=new JSONObject().put("tag","#CLIPTEST").put("timestamp",timestamp)
                 .put("buildings",new JSONArray().put(new JSONObject().put("data",1000097).put("types",new JSONArray().put(new JSONObject().put("data",103000011).put("modules",new JSONArray().put(new JSONObject().put("data",102000033).put("lvl",1).put("timer",10000)))))));
             clipboard(data.toString());reopen();absent("Village export found");
+            reopen("org.clashledger.IMPORT");
+            present("Review village import");
+            reopen();
             convenience.edit().putBoolean("suggestClipboard",true).commit();reopen();
             click("Review");present("Review village import");
             // Review has not saved or selected this account yet.
@@ -49,8 +52,11 @@ public final class ConvenienceSmoke extends Instrumentation {
         finish(passed?-1:0,result);
     }
     private void reopen()throws Exception{
+        reopen(null);
+    }
+    private void reopen(String action)throws Exception{
         if(activity!=null){runOnMainSync(()->activity.finish());waitForIdleSync();}
-        activity=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        activity=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).setAction(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         waitForIdleSync();Thread.sleep(1200);
     }
     private void clipboard(String value){runOnMainSync(()->getTargetContext().getSystemService(ClipboardManager.class).setPrimaryClip(ClipData.newPlainText("Test export",value)));}
